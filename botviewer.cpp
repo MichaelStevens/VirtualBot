@@ -1,0 +1,116 @@
+/*
+    Copyright (c) 2012, <copyright holder> <email>
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+        names of its contributors may be used to endorse or promote products
+        derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY <copyright holder> <email> ''AS IS'' AND ANY
+    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <copyright holder> <email> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+
+#include "botviewer.h"
+#include <QApplication>
+#include <QPainter>
+#include <QStaticText>
+#include <iostream>
+
+
+BotViewer::BotViewer(Robot* robot, Map* map, QWidget* parent): QWidget(parent)
+{
+  this->robot = robot;
+  this->map = map;
+}
+
+
+void BotViewer::paintEvent(QPaintEvent* )
+{
+  QPen pen(Qt::black, 2, Qt::SolidLine);
+
+  QPainter painter(this);
+  
+  double width = this->visibleRegion().boundingRect().width();
+  double height = this->visibleRegion().boundingRect().height();
+  
+  double top = 20;
+  double bottom = height - 20;
+  
+  //draw map
+  painter.setPen(pen);
+  double backer = width-20;
+  painter.drawLine(backer, 20, backer, height - 20);
+  double scalar = (height-40) / map->size;
+  for(int i=0;i<map->parts.size();i++) {     
+   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x0 * scalar, backer - map->parts[i].y, top + map->parts[i].x1 * scalar); 
+   
+   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x0 * scalar, backer, top + map->parts[i].x0 * scalar);
+   
+   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x1 * scalar, backer, top + map->parts[i].x1 * scalar);
+    
+  }
+  
+  //robot
+  pen = QPen(Qt::black, 2, Qt::DotLine);
+  painter.setPen(pen);
+  painter.drawLine(backer - map->offset, top, backer - map->offset, bottom);
+  int robot_w = 15 * scalar;
+  int robot_h = 10 * scalar;  
+  pen = QPen(Qt::black, 2, Qt::SolidLine);
+  painter.setPen(pen);
+  
+  painter.drawRect(backer - map->offset - robot_w,  top + robot->x * scalar - (robot_h / 2), robot_w, robot_h);
+  QString s = QString::number(robot->x);
+  QStaticText t(s);
+  
+  painter.drawStaticText(backer - map->offset - robot_w + robot_w/2-t.textWidth(),  top + robot->x * scalar - 10, t);
+  
+  //lazer
+  pen = QPen(Qt::red, 2, Qt::SolidLine);
+  painter.setPen(pen);
+  
+  double dist = 0;
+  for(uint i=0; i<map->parts.size(); i++) {
+      if(robot->x >= map->parts[i].x0 && robot->x <= map->parts[i].x1) {
+	  dist = map->parts[i].y;
+	  
+	  break;
+      }
+  }
+  
+  
+  painter.drawLine(backer - map->offset, top + robot->x * scalar, backer - dist, top + robot->x * scalar);
+  pen = QPen(Qt::black, 2, Qt::SolidLine);
+  painter.setPen(pen);
+  
+  QString string = QString::number(dist);
+  QStaticText text(string);
+  
+  
+  painter.drawStaticText(backer - map->offset + (map->offset - dist)/2 - text.textWidth()/2, top + robot->x * scalar - 15, text);
+  
+           
+
+        
+  
+    
+
+  
+}
+

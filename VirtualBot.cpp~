@@ -16,7 +16,7 @@ VirtualBot::VirtualBot()
   robot = new Robot();
   last_x = robot->x;
   map = new Map();  
-  particleFilter = new ParticleFilter(map->size, 10000, map);
+  particleFilter = new ParticleFilter(map->size, 50000, map);
   particleFilter->setNoise(robot->move_noise, robot->sense_noise);
   viewer = new BotViewer(robot, map);
   partViewer = new ParticleFilterViewer(particleFilter, map);  

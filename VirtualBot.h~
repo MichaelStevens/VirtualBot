@@ -19,10 +19,8 @@ public:
    virtual ~VirtualBot();
 protected:
   virtual void keyPressEvent(QKeyEvent* );
-  
-private slots:
-  void updateFilter();
 private:
+  void update();
   double last_x;
   BotViewer* viewer;
   ParticleFilterViewer* partViewer;
