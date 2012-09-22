@@ -33,7 +33,7 @@ class Robot
 {
 
 public:
-  double x, dir, move_noise, sense_noise;
+  double x, y, dir, move_noise, sense_noise, turn_noise;
   Robot();
 };
 

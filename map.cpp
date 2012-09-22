@@ -27,24 +27,50 @@
 
 
 #include "map.h"
+#include "math.h"
 
 mapseg::mapseg(double x0, double y0, double x1, double y1)
 {
-  this->x0 = x0;
-  this->y0 = y0;
-  this->x1 = x1;
-  this->y1 = y1;
+  v0 = QVector2D(x0, y0);
+  v1 = QVector2D(x1, y1);
 }
 
 
 Map::Map()
 {
-  width = 100;
-  height = 100;
+  width = 300;
+  height = 300;
   
-  parts.push_back(mapseg(0, 0, width, 0));
-  parts.push_back(mapseg(width, 0, width, height));
-  parts.push_back(mapseg(width, height, 0, height));
-  parts.push_back(mapseg(0, height, 0, 0));
+  parts.push_back(mapseg(0, 0, width - 1, 0));
+  parts.push_back(mapseg(width - 1, 0, width - 1, height - 1));
+  parts.push_back(mapseg(width - 1, height - 1, 0, height - 1));
+  parts.push_back(mapseg(0, height - 1, 0, 0));
+  
+  parts.push_back(mapseg(50, 0 , 50, 100));
+  parts.push_back(mapseg(50, 100 , 25, 100));
+  parts.push_back(mapseg(25, 100 , 25, 0));
+  
+  parts.push_back(mapseg(150, 200 , 200, 150));
+  
+  parts.push_back(mapseg(50, 200 , 230, 20));
+  
+  parts.push_back(mapseg(230, 20 , 100, 100));
+  
+  tile_size = 5;
+  rows = int(width / tile_size + 1);
+  cols = int(height / tile_size + 1);
+  
+  descritized_map = new int*[rows];
+  for(int i=0;i<rows;i++) {
+   descritized_map[i] = new int[cols]; 
+  }
+  
+  for(int y=0;y<cols;y++) {
+   for(int x=0;x<rows;x++) {
+     for(int i=0;i<parts.size();i++) {
+       //if(intersectsRect(parts[i].v0, parts[i].v1, )
+     }
+   }    
+  }
 }
 

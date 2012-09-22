@@ -28,7 +28,11 @@
 
 #include "particlefilter.h"
 #include <cstdlib>  // For srand() and rand()
+#include <QVector2D>
+#include <iostream>
 #include "math.h"
+#include <vector>
+
 
 int ParticleFilter::circle(int num, int length)
 {
@@ -47,6 +51,19 @@ double ParticleFilter::gaussian(double mu, double sigma, double x)
   return exp(-pow(mu - x, 2) / pow(sigma, 2) / 2.0) / sqrt(2.0 * M_PI * pow(sigma, 2));
 }
 
+void ParticleFilter::randomize()
+{
+   for(int i=0; i<pnum; i++) {
+	p[i].x = (double(rand()) / RAND_MAX) * width;
+	p[i].y = (double(rand()) / RAND_MAX) * height;
+	p[i].dir = (double(rand()) / RAND_MAX) * 2.0 * PI;
+	p[i].weight = 1.0 / double(pnum);
+	
+	//std::cout << p[i].dir * 180 / PI << std::endl;
+    }
+}
+
+
 
 
 ParticleFilter::ParticleFilter(double width, double height, int pnum, Map *map) 
@@ -57,16 +74,14 @@ ParticleFilter::ParticleFilter(double width, double height, int pnum, Map *map)
     this->moveNoise = 0;
     this->senseNoise = 0;
     this->map = map;
+    this->resample_pnum = pnum * 0.6;
     
     p = new Particle[pnum];
 
 
-    for(int i=0; i<pnum; i++) {
-	p[i].x = (double(rand()) / RAND_MAX) * width;
-	p[i].y = (double(rand()) / RAND_MAX) * height;
-	p[i].dir = (double(rand()) / RAND_MAX) * 2 * PI;
-	p[i].weight = 1.0 / double(pnum);	
-    }
+    randomize();
+    
+    
 }
 
 Particle ParticleFilter::getBestParticle()
@@ -83,7 +98,7 @@ Particle ParticleFilter::getBestParticle()
 
 }
 
-Particle ParticleFilter::getHighestParticle()
+Particle ParticleFilter::getHighestParticleX()
 {
   Particle &best = p[0];
 
@@ -95,12 +110,62 @@ Particle ParticleFilter::getHighestParticle()
 
   return best;
 }
-Particle ParticleFilter::getLowestParticle()
+Particle ParticleFilter::getLowestParticleX()
 {
   Particle &best = p[0];
 
   for(int i=0; i<pnum; i++) {
       if(p[i].x < best.x) {
+	  best = p[i];
+      }
+  }
+
+  return best;
+}
+
+Particle ParticleFilter::getHighestParticleY()
+{
+  Particle &best = p[0];
+
+  for(int i=0; i<pnum; i++) {
+      if(p[i].y > best.y) {
+	  best = p[i];
+      }
+  }
+
+  return best;
+}
+Particle ParticleFilter::getLowestParticleY()
+{
+  Particle &best = p[0];
+
+  for(int i=0; i<pnum; i++) {
+      if(p[i].y < best.y) {
+	  best = p[i];
+      }
+  }
+
+  return best;
+}
+
+Particle ParticleFilter::getHighestParticleDir()
+{
+  Particle &best = p[0];
+
+  for(int i=0; i<pnum; i++) {
+      if(p[i].dir > best.dir) {
+	  best = p[i];
+      }
+  }
+
+  return best;
+}
+Particle ParticleFilter::getLowestParticleDir()
+{
+  Particle &best = p[0];
+
+  for(int i=0; i<pnum; i++) {
+      if(p[i].dir < best.dir) {
 	  best = p[i];
       }
   }
@@ -133,10 +198,12 @@ Particle ParticleFilter::getWieghtedAverage()
   double sum = 0;
   Particle mean;
   mean.x = 0;
+  mean.y = 0;
   mean.dir = 0;
   mean.weight = 0;
   for(int i=0;i<pnum;i++) {
       mean.x += p[i].x * p[i].weight;
+      mean.y += p[i].y * p[i].weight;
       mean.dir += p[i].dir * p[i].weight;
       mean.weight += p[i].weight * p[i].weight;
       sum += p[i].weight;
@@ -162,17 +229,36 @@ double ParticleFilter::ESS()
 
 }
 
-void ParticleFilter::sense(double Z) 
-{
+void ParticleFilter::sense(double Z, double turn) 
+{ 
   for(int a=0; a<pnum; a++) {
-      double dist = 10000;
+      double dist = sqrt(width * width + height * height) + 1;
+      QVector2D dir(p[a].x + cos(p[a].dir + turn) * dist, p[a].y + cos(PI/2 - p[a].dir - turn) * dist);
+      
+      QVector2D origin(p[a].x, p[a].y);
+      bool hitonce = false;
       for(uint i=0; i<map->parts.size(); i++) {
-	  if(p[a].x >= map->parts[i].x0 && p[a].x <= map->parts[i].x1) {
-	      dist = map->offset - map->parts[i].y;
-	      break;
+	QVector2D inter;
+	bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
+	if(hit) {
+	  hitonce = true;
+	  double new_dist = distance(origin, inter);	  
+	  if(new_dist < dist) {
+	    dist = new_dist;	    
 	  }
+	}	
       }
-      p[a].weight *= gaussian(dist, senseNoise, Z);
+      if(hitonce) {
+	p[a].weight *= gaussian(dist, senseNoise, Z);
+      } else {
+	p[a].weight = 0;
+      }
+     
+      
+      
+      //if(theta > -100 && theta < -80 && p[a].y > 20 && p[a].y < 50)
+      //std::cout << p[a].x << ", " << p[a].y << ", " << p[a].dir * 180 / PI << ", " << 
+      //p[a].weight << "| " <<Z << ", "<<dist << ", (" <<p[a].x<< ", "<< p[a].y << ")" << std::endl;
 
   }
 
@@ -194,13 +280,16 @@ void ParticleFilter::normalize()
 }
 
 
-void ParticleFilter::move(double dist) 
+void ParticleFilter::move(double dist, double rot, bool reverse) 
 {
   for(int i=0; i<pnum; i++) {
-    if(p[i].dir == 1) {
-	p[i].x += dist + randn_notrig(0, moveNoise);
+    p[i].dir += rot + randn_notrig(0, turnNoise); 
+    if(!reverse) {
+      p[i].x += (dist + randn_notrig(0, moveNoise)) * cos(p[i].dir);
+      p[i].y += (dist + randn_notrig(0, moveNoise)) * cos(PI/2 - p[i].dir);   
     } else {
-	p[i].x -= dist + randn_notrig(0, moveNoise);
+      p[i].x -= (dist + randn_notrig(0, moveNoise)) * cos(p[i].dir);
+      p[i].y -= (dist + randn_notrig(0, moveNoise)) * cos(PI/2 - p[i].dir);	
     }
   }
 }
@@ -220,6 +309,7 @@ void ParticleFilter::resample()
 	  index = circle(index + 1, pnum);
       }
       new_p[i].x     = p[index].x;
+      new_p[i].y = p[index].y;
       new_p[i].dir = p[index].dir;
       new_p[i].weight  = p[index].weight;
   }
@@ -227,18 +317,123 @@ void ParticleFilter::resample()
 
   for(int i=0;i<pnum;i++) {
       p[i].x = new_p[i].x;
+      p[i].y = new_p[i].y;
       p[i].dir = new_p[i].dir;
-      p[i].weight = new_p[i].weight;
+      p[i].weight = 1.0/pnum;
   }
   
-  normalize();
+  //normalize();
 }
 
-void ParticleFilter::setNoise(double moveNoise, double senseNoise)
+void ParticleFilter::liuResample()
+{
+  //create new weights
+  double sum = 0;
+  for(int i=0;i<pnum;i++) {
+   p[i].a = sqrt(p[i].weight);
+   sum += p[i].a;
+  }
+  
+  //normalize to pnum  
+  sum /= resample_pnum;
+  for(int i=0;i<pnum;i++) {
+    p[i].a /= sum;    
+  }   
+    
+  std::vector<Particle> p_list;
+  
+  for(int i=0;i<pnum;i++) {
+    if(p[i].a >= 1) {
+      int num = int(p[i].a + 0.5);//number of new particles      
+      for(int n=0;n<num;n++) {	
+	p_list.push_back(p[i]);
+      }
+    } else {
+	double n = double(rand()) / RAND_MAX;
+	if(p[i].a >= n) {
+	  p_list.push_back(p[i]);	 	
+	}
+    }
+  }
+  delete[] p;
+  pnum = p_list.size();
+  p = new Particle[pnum];
+  for(int i=0;i<pnum;i++) {
+    p[i].x = p_list[i].x;
+    p[i].y = p_list[i].y;   
+    p[i].dir = p_list[i].dir;    
+    p[i].weight = 1.0/pnum;   
+  } 
+}
+
+void ParticleFilter::correctiveResample(ParticleFilter* filter)
+{
+  const int weight = 100;
+  Particle new_p[weight];
+
+  double B = 0;
+  Particle best = filter->getBestParticle();
+  int index = (rand() % filter->pnum);
+
+  for(int i=0; i<weight; i++) {
+      B += (double(rand()) / RAND_MAX) * 2.0 * best.weight;
+      while(B > filter->p[index].weight) {
+	  B -= filter->p[index].weight;
+	  index = circle(index + 1, filter->pnum);
+      }
+      new_p[i].x = filter->p[index].x;
+      new_p[i].y = filter->p[index].y;
+      new_p[i].dir = filter->p[index].dir;
+      new_p[i].weight  = filter->p[index].weight;
+  }
+  Particle* parts = new Particle[pnum + weight];
+  for(int i=0;i<pnum;i++) {
+   parts[i].x = p[i].x;
+   parts[i].y = p[i].y;
+   parts[i].dir = p[i].dir;
+   parts[i].weight = p[i].weight;
+  }
+  
+  for(int i=0;i<weight;i++) {
+    parts[pnum + i].x = new_p[i].x;
+    parts[pnum + i].y = new_p[i].y;
+    parts[pnum + i].dir = new_p[i].dir;
+    parts[pnum + i].weight = new_p[i].weight;
+  }
+  
+  delete[] p;
+  p = parts;
+  pnum += weight;
+  
+  normalize();
+  
+}
+
+void ParticleFilter::setNoise(double moveNoise, double senseNoise, double turnNoise)
 {
   this->moveNoise  = moveNoise;
   this->senseNoise = senseNoise;
+  this->turnNoise  = turnNoise;
 }
+
+bool ParticleFilter::isLocalized()
+{
+  double xdiff = getHighestParticleX().x - getLowestParticleX().x;  
+  double ydiff = getHighestParticleY().y - getLowestParticleY().y;
+  double dirdiff = getHighestParticleDir().dir - getLowestParticleDir().dir;
+  double mean = (xdiff + ydiff + dirdiff) / 3;
+  if(mean < ((this->width+this->height) / 2.0) * 0.10) {
+   return true; 
+  }
+  
+  return false;
+}
+
+int ParticleFilter::getConfidence()
+{
+  return 0;
+}
+
 
 
 

@@ -33,7 +33,8 @@ class Robot
 {
 
 public:
-Robot();
+  double x, y, dir, move_noise, sense_noise;
+  Robot();
 };
 
 #endif // ROBOT_H

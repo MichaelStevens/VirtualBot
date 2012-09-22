@@ -29,8 +29,10 @@
 #ifndef PARTICLEFILTER_H
 #define PARTICLEFILTER_H
 #include "map.h"
+#include <QVector2D>
 struct Particle{
-  double x, y, dir, weight;
+  double x, y, dir, weight, a;
+  QVector2D p, p1;
 };
 
 class ParticleFilter
@@ -39,23 +41,31 @@ private:
   Map* map;
   int circle(int, int);
   double gaussian(double, double, double);
-  void normalize();
+  void normalize();  
 
 public:
   Particle* p;
-  int pnum;
-  double size, moveNoise, senseNoise;
-  ParticleFilter(double, int, Map*);
+  int pnum, resample_pnum;
+  double width, height, moveNoise, senseNoise, turnNoise;
+  ParticleFilter(double, double, int, Map*);
   Particle getBestParticle();
-  Particle getHighestParticle();
-  Particle getLowestParticle();
-  Particle getAverageParticle();
+  Particle getHighestParticleX();
+  Particle getLowestParticleX();
+  Particle getHighestParticleY();
+  Particle getLowestParticleY();
+  Particle getHighestParticleDir();
+  Particle getLowestParticleDir();  
+  Particle getAverageParticle();  
   Particle getWieghtedAverage();
   double ESS();
-  void sense(double);
-  void move(double);
+  void randomize();
+  void sense(double, double);
+  void move(double, double, bool reverse = false);
   void resample();
-  void setNoise(double, double);
+  void liuResample();
+  void correctiveResample(ParticleFilter* filter);
+  void setNoise(double, double, double);
+  bool isLocalized();
 };
 
 #endif // PARTICLEFILTER_H

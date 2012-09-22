@@ -27,12 +27,14 @@
 
 
 #include "robot.h"
-
+#include "math.h"
 Robot::Robot()
 {
-  x = 0;
-  dir = 1;
-  move_noise = 1.5;
-  sense_noise = 2;
+  x = (double(rand()) / RAND_MAX) * 300;
+  y = (double(rand()) / RAND_MAX) * 300;
+  dir = (double(rand()) / RAND_MAX) * 2.0 * PI;
+  move_noise = 1.3;
+  sense_noise = 5;
+  turn_noise = PI / 180.0;
 }
 

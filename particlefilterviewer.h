@@ -32,6 +32,9 @@
 #include <QWidget>
 #include "map.h"
 #include "particlefilter.h"
+#include "robot.h"
+#include <vector>
+
 
 class ParticleFilterViewer : public QWidget
 {
@@ -39,12 +42,15 @@ class ParticleFilterViewer : public QWidget
 private:
   Map* map;
   ParticleFilter* particleFilter;
+  Robot* robot;
+  std::vector<double> state_error;
 
 public:
-explicit ParticleFilterViewer(ParticleFilter* particleFilter, Map* map, QWidget* parent = 0);
+explicit ParticleFilterViewer(ParticleFilter* particleFilter, Map* map, Robot* robot, QWidget* parent = 0);
 
 protected:
 virtual void paintEvent(QPaintEvent* );
+virtual void mousePressEvent(QMouseEvent* );
 };
 
 #endif // PARTICLEFILTERVIEWER_H

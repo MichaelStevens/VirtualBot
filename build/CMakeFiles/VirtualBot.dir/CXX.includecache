@@ -13,6 +13,8 @@ QApplication
 -
 QTimer
 -
+QButtonGroup
+-
 botviewer.h
 ../botviewer.h
 robot.h
@@ -39,6 +41,8 @@ QtGui/QHBoxLayout
 -
 QKeyEvent
 -
+QVector2D
+-
 math.h
 /home/michael/projects/VirtualBot/math.h
 iostream
@@ -52,6 +56,8 @@ QtGui/QMainWindow
 QApplication
 -
 QTimer
+-
+QButtonGroup
 -
 botviewer.h
 /home/michael/projects/VirtualBot/botviewer.h
@@ -75,16 +81,22 @@ map.h
 /home/michael/projects/VirtualBot/map.h
 vector
 -
+QVector2D
+-
 
 /home/michael/projects/VirtualBot/math.h
 math.h
 -
 cstdlib
 -
+QVector2D
+-
 
 /home/michael/projects/VirtualBot/particlefilter.h
 map.h
 /home/michael/projects/VirtualBot/map.h
+QVector2D
+-
 
 /home/michael/projects/VirtualBot/particlefilterviewer.h
 QWidget
@@ -93,6 +105,10 @@ map.h
 /home/michael/projects/VirtualBot/map.h
 particlefilter.h
 /home/michael/projects/VirtualBot/particlefilter.h
+robot.h
+/home/michael/projects/VirtualBot/robot.h
+vector
+-
 
 /home/michael/projects/VirtualBot/robot.h
 
@@ -646,6 +662,10 @@ qaction.h
 qapplication.h
 /usr/include/qt4/QtGui/qapplication.h
 
+/usr/include/qt4/QtGui/QButtonGroup
+qbuttongroup.h
+/usr/include/qt4/QtGui/qbuttongroup.h
+
 /usr/include/qt4/QtGui/QHBoxLayout
 qboxlayout.h
 /usr/include/qt4/QtGui/qboxlayout.h
@@ -673,6 +693,10 @@ qmenubar.h
 /usr/include/qt4/QtGui/QPlatformWindow
 qplatformwindow_qpa.h
 /usr/include/qt4/QtGui/qplatformwindow_qpa.h
+
+/usr/include/qt4/QtGui/QVector2D
+qvector2d.h
+/usr/include/qt4/QtGui/qvector2d.h
 
 /usr/include/qt4/QtGui/QWidget
 qwidget.h
@@ -744,6 +768,10 @@ QtGui/qtransform.h
 QtGui/qimage.h
 -
 QtGui/qpixmap.h
+-
+
+/usr/include/qt4/QtGui/qbuttongroup.h
+QtCore/qobject.h
 -
 
 /usr/include/qt4/QtGui/qcolor.h
@@ -1064,6 +1092,12 @@ QtCore/qbuffer.h
 QtCore/qpointer.h
 -
 sys/types.h
+-
+
+/usr/include/qt4/QtGui/qvector2d.h
+QtCore/qpoint.h
+-
+QtCore/qmetatype.h
 -
 
 /usr/include/qt4/QtGui/qwidget.h

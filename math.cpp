@@ -1,4 +1,6 @@
 #include "math.h"
+#include <iostream>
+#include <qline.h>
 /******************************************************************************/
 /* randn()
  *
@@ -112,4 +114,84 @@ double randn_trig(double mu, double sigma) {
 		deviateAvailable=false;
 		return storedDeviate*sigma + mu;
 	}
+}
+
+
+bool intersects(QVector2D A, QVector2D B, QVector2D C, QVector2D D, QVector2D &intersection) {
+  QVector2D E = B - A;
+  QVector2D F = D - C;
+  QVector2D P(-F.y(), F.x());
+  QVector2D P2(-E.y(), E.x()); 
+  double h = (QVector2D::dotProduct(C, P) - QVector2D::dotProduct(A, P)) / 
+	     (QVector2D::dotProduct(E, P));
+  
+	     
+	     
+  
+  double i = (QVector2D::dotProduct(A, P2) - QVector2D::dotProduct(C, P2)) / QVector2D::dotProduct(F, P2);
+  
+  
+  if(!(h >= 0 && h <= 1 && i >= 0 && i <= 1)) {
+   return false; 
+  }
+  
+  intersection = A + E * h;  
+  
+  
+  
+  return true;
+}
+
+bool intersectsRect(QVector2D A, QVector2D B, double x, double y, double width, double height) {
+  QVector2D C0(x, y);
+  QVector2D D0(x + width, y);
+  
+  QVector2D C1(x + width, y);
+  QVector2D D1(x + width, y + height);
+  
+  QVector2D C2(x + width, y + height);
+  QVector2D D2(x, y + height);
+  
+  QVector2D C3(x, y + height);
+  QVector2D D3(x, y);
+  
+  bool I0, I1, I2, I3;
+  
+  QVector2D buf;
+  
+  I0 = intersects(A, B, C0, D0, buf);
+  I1 = intersects(A, B, C1, D1, buf);
+  I2 = intersects(A, B, C2, D2, buf);
+  I3 = intersects(A, B, C3, D3, buf);
+  if(I0 || I1 || I2 || I3) {
+    return false;
+  }
+  return true;
+}
+
+bool contains(double x0, double y0, double x1, double y1, double test_x, double test_y) {  
+ double slope = (y0 - y1) / (x0 - x1);
+ double left  = y0 - test_y;
+ double right = slope * (x0 - test_x);
+ return left == right;
+}
+
+double distance(QVector2D v0, QVector2D v1)
+{
+  return sqrt(pow(v0.x() - v1.x(), 2) + pow(v0.y() - v1.y(), 2));
+}
+
+double distance(double x0, double y0, double x1, double y1)
+{  
+  return sqrt(pow(x0 - x1, 2) + pow(y0 - y1, 2));  
+}
+
+bool is_nan(double val) {
+  return !(val == val);  
+}
+
+double d_abs(double val)
+{
+  if(val < 0) val *= -1.0;
+  return val;
 }

@@ -31,6 +31,7 @@
 #include <QPainter>
 #include <QStaticText>
 #include <iostream>
+#include "math.h"
 
 
 BotViewer::BotViewer(Robot* robot, Map* map, QWidget* parent): QWidget(parent)
@@ -42,6 +43,7 @@ BotViewer::BotViewer(Robot* robot, Map* map, QWidget* parent): QWidget(parent)
 
 void BotViewer::paintEvent(QPaintEvent* )
 {
+  
   QPen pen(Qt::black, 2, Qt::SolidLine);
 
   QPainter painter(this);
@@ -51,59 +53,122 @@ void BotViewer::paintEvent(QPaintEvent* )
   
   double top = 20;
   double bottom = height - 20;
+  double left = 20;
+  double right = width - 20;
+  
+  double w_scalar = (bottom - top) / map->width;
+  double h_scalar = (right - left) / map->height;
   
   //draw map
-  painter.setPen(pen);
-  double backer = width-20;
-  painter.drawLine(backer, 20, backer, height - 20);
-  double scalar = (height-40) / map->size;
+  painter.setPen(pen);  
+  
   for(int i=0;i<map->parts.size();i++) {     
-   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x0 * scalar, backer - map->parts[i].y, top + map->parts[i].x1 * scalar); 
-   
-   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x0 * scalar, backer, top + map->parts[i].x0 * scalar);
-   
-   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x1 * scalar, backer, top + map->parts[i].x1 * scalar);
-    
+   painter.drawLine(left + map->parts[i].v0.x() * w_scalar , top +  map->parts[i].v0.y() * h_scalar,
+		    left + map->parts[i].v1.x() * w_scalar, top + map->parts[i].v1.y() * h_scalar );    
   }
   
-  //robot
-  pen = QPen(Qt::black, 2, Qt::DotLine);
-  painter.setPen(pen);
-  painter.drawLine(backer - map->offset, top, backer - map->offset, bottom);
-  int robot_w = 15 * scalar;
-  int robot_h = 10 * scalar;  
+  //robot  
+  
+  int robot_w = 15 * w_scalar;
+  int robot_h = 10 * h_scalar;  
   pen = QPen(Qt::black, 2, Qt::SolidLine);
   painter.setPen(pen);
+  painter.save();  
+  painter.translate(left + robot->x * w_scalar, top + robot->y * h_scalar);
+  painter.rotate(robot->dir * 180 / PI);
+  painter.drawRect(-robot_w/2, -robot_h/2, robot_w, robot_h);
   
-  painter.drawRect(backer - map->offset - robot_w,  top + robot->x * scalar - (robot_h / 2), robot_w, robot_h);
-  QString s = QString::number(robot->x);
-  QStaticText t(s);
+  painter.restore();
+  //painter.drawRect(left + robot->x * w_scalar - robot_w/2, top + robot->y * h_scalar - robot_h /2, robot_w, robot_h);
   
-  painter.drawStaticText(backer - map->offset - robot_w + robot_w/2-t.textWidth(),  top + robot->x * scalar - 10, t);
+  
   
   //lazer
   pen = QPen(Qt::red, 2, Qt::SolidLine);
   painter.setPen(pen);
+  double dist = sqrt(width * width + height * height) + 1;
+  //deg 0
+  QVector2D point;
+  QVector2D dir(robot->x + cos(robot->dir) * dist, robot->y + cos(PI/2 - robot->dir) * dist);  
+  QVector2D origin(robot->x, robot->y);  
   
-  double dist = 0;
+   
   for(uint i=0; i<map->parts.size(); i++) {
-      if(robot->x >= map->parts[i].x0 && robot->x <= map->parts[i].x1) {
-	  dist = map->parts[i].y;
-	  
-	  break;
+    QVector2D inter;
+    bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
+    if(hit) {
+      double new_dist = distance(origin, inter);
+      if(new_dist < dist) {
+      dist = new_dist;	  
+      point = inter;
       }
-  }
+    }
+  }  
+  painter.drawLine(left + origin.x() * w_scalar, top + origin.y() * h_scalar,
+		   left + point.x() * w_scalar, top + point.y() * h_scalar);
   
   
-  painter.drawLine(backer - map->offset, top + robot->x * scalar, backer - dist, top + robot->x * scalar);
-  pen = QPen(Qt::black, 2, Qt::SolidLine);
-  painter.setPen(pen);
+  //deg 90
+  dist = sqrt(width * width + height * height) + 1;
+  dir = QVector2D(robot->x + cos(robot->dir + PI/2) * dist, robot->y + cos(robot->dir) * dist);  
+    
   
-  QString string = QString::number(dist);
-  QStaticText text(string);
+   
+  for(uint i=0; i<map->parts.size(); i++) {
+    QVector2D inter;
+    bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
+    if(hit) {
+      double new_dist = distance(origin, inter);
+      if(new_dist < dist) {
+      dist = new_dist;	  
+      point = inter;
+      }
+    }
+  }  
+  painter.drawLine(left + origin.x() * w_scalar, top + origin.y() * h_scalar,
+		   left + point.x() * w_scalar, top + point.y() * h_scalar);
+  
+  //deg 180
+  dist = sqrt(width * width + height * height) + 1;
+  dir = QVector2D(robot->x + cos(robot->dir + PI) * dist, robot->y + cos(robot->dir + PI / 2) * dist);  
+    
+  
+   
+  for(uint i=0; i<map->parts.size(); i++) {
+    QVector2D inter;
+    bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
+    if(hit) {
+      double new_dist = distance(origin, inter);
+      if(new_dist < dist) {
+      dist = new_dist;	  
+      point = inter;
+      }
+    }
+  }  
+  painter.drawLine(left + origin.x() * w_scalar, top + origin.y() * h_scalar,
+		   left + point.x() * w_scalar, top + point.y() * h_scalar);
+  
+  //deg 270
+  dist = sqrt(width * width + height * height) + 1;
+  dir = QVector2D(robot->x + cos(robot->dir + 3.0*PI/2.0) * dist, robot->y + cos(robot->dir + PI) * dist);  
+    
+  
+   
+  for(uint i=0; i<map->parts.size(); i++) {
+    QVector2D inter;
+    bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
+    if(hit) {
+      double new_dist = distance(origin, inter);
+      if(new_dist < dist) {
+      dist = new_dist;	  
+      point = inter;
+      }
+    }
+  }  
+  painter.drawLine(left + origin.x() * w_scalar, top + origin.y() * h_scalar,
+		   left + point.x() * w_scalar, top + point.y() * h_scalar);
   
   
-  painter.drawStaticText(backer - map->offset + (map->offset - dist)/2 - text.textWidth()/2, top + robot->x * scalar - 15, text);
   
            
 

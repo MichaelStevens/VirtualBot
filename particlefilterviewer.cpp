@@ -29,15 +29,25 @@
 #include <QStaticText>
 #include <iostream>
 #include "particlefilterviewer.h"
+#include "math.h"
+#include <math.h>
 
 
 
-ParticleFilterViewer::ParticleFilterViewer(ParticleFilter* particleFilter, Map* map, QWidget* parent): QWidget(parent)
+ParticleFilterViewer::ParticleFilterViewer(ParticleFilter* particleFilter, Map* map, Robot* robot, QWidget* parent): QWidget(parent)
 {
   this->particleFilter = particleFilter;
   this->map = map;
+  this->robot = robot;
   
 }
+
+void ParticleFilterViewer::mousePressEvent(QMouseEvent* mouse)
+{
+  particleFilter->liuResample();
+  repaint();
+}
+
 
 void ParticleFilterViewer::paintEvent(QPaintEvent* )
 {
@@ -50,46 +60,86 @@ void ParticleFilterViewer::paintEvent(QPaintEvent* )
   
   double top = 20;
   double bottom = height - 20;
+  double left = 20;
+  double right = width - 20;
+  
+  double w_scalar = (bottom - top) / map->width;
+  double h_scalar = (right - left) / map->height;
   
   //draw map
   painter.setPen(pen);
-  double backer = width-20;
-  painter.drawLine(backer, 20, backer, height - 20);
-  double scalar = (height-40) / map->size;
+  
   for(int i=0;i<map->parts.size();i++) {     
-   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x0 * scalar, backer - map->parts[i].y, top + map->parts[i].x1 * scalar); 
-   
-   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x0 * scalar, backer, top + map->parts[i].x0 * scalar);
-   
-   painter.drawLine(backer - map->parts[i].y, top + map->parts[i].x1 * scalar, backer, top + map->parts[i].x1 * scalar);
-    
+   painter.drawLine(left + map->parts[i].v0.x() * w_scalar , top +  map->parts[i].v0.y() * h_scalar,
+		    left + map->parts[i].v1.x() * w_scalar, top + map->parts[i].v1.y() * h_scalar );    
   }
+  
+  //actual
+  //robot  
+  
+  int robot_w = 15 * w_scalar;
+  int robot_h = 10 * h_scalar;  
+  pen = QPen(Qt::black, 2, Qt::SolidLine);
+  painter.setPen(pen);
+  painter.save();  
+  painter.translate(left + robot->x * w_scalar, top + robot->y * h_scalar);
+  painter.rotate(robot->dir * 180 / PI);
+  painter.drawRect(-robot_w/2, -robot_h/2, robot_w, robot_h);
+  
+  painter.restore();
   //particles  
 
   painter.setPen( QPen( Qt::NoPen ) );
-  double sum = 0;
+  
   for(int i=0;i<particleFilter->pnum;i++) {
     painter.setBrush(QBrush(QColor(0,0,0)));
-    painter.drawEllipse(backer - map->offset, top + particleFilter->p[i].x * scalar, 5, 5);
+    painter.drawEllipse(left + particleFilter->p[i].x * w_scalar, top + particleFilter->p[i].y * h_scalar, 5, 5);    
+    painter.setPen(QPen(QColor(255,0,0)));
+    
+    //painter.drawLine(left + particleFilter->p[i].x * w_scalar, top + particleFilter->p[i].y * h_scalar, \
+		      left + particleFilter->p[i].p.x() * w_scalar, top + particleFilter->p[i].p.y() * h_scalar);
+    
+    //painter.drawLine(left + particleFilter->p[i].x * w_scalar, top + particleFilter->p[i].y * h_scalar, \
+		      left + particleFilter->p[i].p1.x() * w_scalar, top + particleFilter->p[i].p1.y() * h_scalar);
+  
     
     
-    sum += particleFilter->p[i].weight;
-    
-  }
+  } 
   
   //best estimate
   Particle p = particleFilter->getWieghtedAverage();
   
-  painter.setBrush(QBrush(QColor(255,0,0)));
-  painter.drawEllipse(backer - map->offset, top + p.x * scalar, 5, 5);
+  painter.setBrush(QBrush(QColor(0,0,255)));
+  painter.drawEllipse(left + p.x * w_scalar, top + p.y * h_scalar, 5, 5);
+  
+  
 
   painter.setPen(QPen(QColor(0,0,0)));
-  QString status = QString::number(p.x);
+  double error = d_abs(p.x - robot->x) + d_abs(p.y - robot->y) + d_abs(p.dir - robot->dir);
+  QString status = QString::number(error);
   
   QStaticText status_text(status);
   
   painter.drawStaticText(0,0, status_text);
   
+  if(particleFilter->isLocalized()) {
+   state_error.push_back(error);
+   double mean = 0;
+   int total = state_error.size();
+   for(int i=0;i<total;i++) {
+     mean += state_error[i];     
+   }
+   mean /= total;
+   
+  QString status = "State error:" + QString::number(mean);
+  
+  QStaticText status_text(status);
+  
+  painter.drawStaticText(0,20, status_text);
+     
+     
+  
+  } 
   
   
 }
