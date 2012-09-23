@@ -1,2 +1,0 @@
-# Hashes of file build rules.
-8df31eb64a6bd784b9d48978a30f2ce5 VirtualBot.moc
