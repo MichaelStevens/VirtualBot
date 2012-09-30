@@ -30,43 +30,42 @@
 #define PARTICLEFILTER_H
 #include "map.h"
 #include <QVector2D>
-struct Particle{
-  double x, y, dir, weight, a;
-  QVector2D p, p1;
+struct Particle {
+    double x, y, dir, weight, a;
+    QVector2D p, p1;
 };
 
-class ParticleFilter
-{
-private:  
-  Map* map;
-  int circle(int, int);
-  double gaussian(double, double, double);
-  void normalize();  
+class ParticleFilter {
+private:
+    Map* map;
+    int circle ( int, int );
+    double gaussian ( double, double, double );
+    void normalize();
 
 public:
-  Particle* p;
-  int pnum, resample_pnum;
-  double width, height, moveNoise, senseNoise, turnNoise;
-  ParticleFilter(double, double, int, Map*);
-  Particle getBestParticle();
-  Particle getHighestParticleX();
-  Particle getLowestParticleX();
-  Particle getHighestParticleY();
-  Particle getLowestParticleY();
-  Particle getHighestParticleDir();
-  Particle getLowestParticleDir();  
-  Particle getAverageParticle();  
-  Particle getWieghtedAverage();
-  double ESS();
-  void randomize();
-  void sense(double, double);
-  void move(double, double, bool reverse = false);
-  void resample();
-  void liuResample();
-  void correctiveResample(ParticleFilter* filter);
-  void setNoise(double, double, double);
-  bool isLocalized();
-  int getConfidence();
+    Particle* p;
+    int pnum, resample_pnum;
+    double width, height, moveNoise, senseNoise, turnNoise;
+    ParticleFilter ( double, double, int, Map* );
+    Particle getBestParticle();
+    Particle getHighestParticleX();
+    Particle getLowestParticleX();
+    Particle getHighestParticleY();
+    Particle getLowestParticleY();
+    Particle getHighestParticleDir();
+    Particle getLowestParticleDir();
+    Particle getAverageParticle();
+    Particle getWieghtedAverage();
+    double ESS();
+    void randomize();
+    void sense ( double, double );
+    void move ( double, double, bool reverse = false );
+    void resample();
+    void liuResample();
+    void correctiveResample ( ParticleFilter* filter );
+    void setNoise ( double, double, double );
+    bool isLocalized();
+    int getConfidence();
 };
 
 #endif // PARTICLEFILTER_H

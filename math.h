@@ -5,6 +5,19 @@
 #include <cstdlib>  // For srand() and rand()
 #include <QVector2D>
 
+class Vector2 {
+private:
+  double A, B;
+public:
+  Vector2();
+  Vector2(double A, double B);
+  double x();
+  double y();
+  Vector2 operator+(Vector2& other);
+  Vector2 operator-(Vector2& other);
+  static double dotProduct(Vector2& V0, Vector2& V1);
+  
+};
 
 bool intersects(QVector2D A, QVector2D B, QVector2D C, QVector2D D, QVector2D &intersection);
 bool intersectsRect(QVector2D A, QVector2D B, double x, double y, double width, double height);
