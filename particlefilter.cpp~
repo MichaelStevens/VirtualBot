@@ -334,8 +334,9 @@ void ParticleFilter::liuResample()
    sum += p[i].a;
   }
   
-  //normalize to pnum  
-  sum /= resample_pnum;
+  //normalize to pnum
+  if(isLocalized()) sum /= resample_pnum;
+  else sum /= pnum;
   for(int i=0;i<pnum;i++) {
     p[i].a /= sum;    
   }   

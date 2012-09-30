@@ -29,10 +29,10 @@
 #ifndef PARTICLEFILTER_H
 #define PARTICLEFILTER_H
 #include "map.h"
-#include <QVector2D>
+#include "math.h"
 struct Particle {
     double x, y, dir, weight, a;
-    QVector2D p, p1;
+    Vector2 p, p1;
 };
 
 class ParticleFilter {

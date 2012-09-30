@@ -31,8 +31,8 @@
 
 mapseg::mapseg(double x0, double y0, double x1, double y1)
 {
-  v0 = QVector2D(x0, y0);
-  v1 = QVector2D(x1, y1);
+  v0 = Vector2(x0, y0);
+  v1 = Vector2(x1, y1);
 }
 
 

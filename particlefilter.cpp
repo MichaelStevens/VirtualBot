@@ -28,7 +28,6 @@
 
 #include "particlefilter.h"
 #include <cstdlib>  // For srand() and rand()
-#include <QVector2D>
 #include <iostream>
 #include "math.h"
 #include <vector>
@@ -233,12 +232,12 @@ void ParticleFilter::sense(double Z, double turn)
 { 
   for(int a=0; a<pnum; a++) {
       double dist = sqrt(width * width + height * height) + 1;
-      QVector2D dir(p[a].x + cos(p[a].dir + turn) * dist, p[a].y + cos(PI/2 - p[a].dir - turn) * dist);
+      Vector2 dir(p[a].x + cos(p[a].dir + turn) * dist, p[a].y + cos(PI/2 - p[a].dir - turn) * dist);
       
-      QVector2D origin(p[a].x, p[a].y);
+      Vector2 origin(p[a].x, p[a].y);
       bool hitonce = false;
       for(uint i=0; i<map->parts.size(); i++) {
-	QVector2D inter;
+	Vector2 inter;
 	bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
 	if(hit) {
 	  hitonce = true;

@@ -1,6 +1,5 @@
 #include "math.h"
 #include <iostream>
-#include <qline.h>
 /******************************************************************************/
 /* randn()
  *
@@ -117,47 +116,47 @@ double randn_trig(double mu, double sigma) {
 }
 
 
-bool intersects(QVector2D A, QVector2D B, QVector2D C, QVector2D D, QVector2D &intersection) {
-    QVector2D E = B - A;
-    QVector2D F = D - C;
-    QVector2D P(-F.y(), F.x());
-    QVector2D P2(-E.y(), E.x());
-    double h = (QVector2D::dotProduct(C, P) - QVector2D::dotProduct(A, P)) /
-               (QVector2D::dotProduct(E, P));
+bool intersects(Vector2 A, Vector2 B, Vector2 C, Vector2 D, Vector2 &intersection) {
+    Vector2 E = B - A;
+    Vector2 F = D - C;
+    Vector2 P(-F.y(), F.x());
+    Vector2 P2(-E.y(), E.x());
+    double h = (Vector2::dotProduct(C, P) - Vector2::dotProduct(A, P)) /
+               (Vector2::dotProduct(E, P));
 
 
 
 
-    double i = (QVector2D::dotProduct(A, P2) - QVector2D::dotProduct(C, P2)) / QVector2D::dotProduct(F, P2);
+    double i = (Vector2::dotProduct(A, P2) - Vector2::dotProduct(C, P2)) / Vector2::dotProduct(F, P2);
 
 
     if(!(h >= 0 && h <= 1 && i >= 0 && i <= 1)) {
         return false;
     }
 
-    intersection = A + E * h;
+    intersection = E * h + A;
 
 
 
     return true;
 }
 
-bool intersectsRect(QVector2D A, QVector2D B, double x, double y, double width, double height) {
-    QVector2D C0(x, y);
-    QVector2D D0(x + width, y);
+bool intersectsRect(Vector2 A, Vector2 B, double x, double y, double width, double height) {
+    Vector2 C0(x, y);
+    Vector2 D0(x + width, y);
 
-    QVector2D C1(x + width, y);
-    QVector2D D1(x + width, y + height);
+    Vector2 C1(x + width, y);
+    Vector2 D1(x + width, y + height);
 
-    QVector2D C2(x + width, y + height);
-    QVector2D D2(x, y + height);
+    Vector2 C2(x + width, y + height);
+    Vector2 D2(x, y + height);
 
-    QVector2D C3(x, y + height);
-    QVector2D D3(x, y);
+    Vector2 C3(x, y + height);
+    Vector2 D3(x, y);
 
     bool I0, I1, I2, I3;
 
-    QVector2D buf;
+    Vector2 buf;
 
     I0 = intersects(A, B, C0, D0, buf);
     I1 = intersects(A, B, C1, D1, buf);
@@ -176,7 +175,7 @@ bool contains(double x0, double y0, double x1, double y1, double test_x, double 
     return left == right;
 }
 
-double distance(QVector2D v0, QVector2D v1) {
+double distance(Vector2 v0, Vector2 v1) {
     return sqrt(pow(v0.x() - v1.x(), 2) + pow(v0.y() - v1.y(), 2));
 }
 
@@ -210,18 +209,23 @@ double Vector2::y() {
   return B;
 }
 
-Vector2 Vector2::operator+(const Vector2& other) {
-  return Vector2(this->x(), this->y());
+Vector2 Vector2::operator+(Vector2& other) {
+  return Vector2(this->x() + other.x(), this->y() + other.y());
 }
 
-Vector2 Vector2::operator-(const Vector2& other) {
-  return Vector2(this->x() , this->y());
+Vector2 Vector2::operator-(Vector2& other) {
+  return Vector2(this->x() - other.x(), this->y() - other.y());
+}
+
+Vector2 Vector2::operator*(const double& scalar) {
+  return Vector2(this->x() * scalar, this->y() * scalar);
+}
+
+Vector2 Vector2::operator/(const double& scalar) {
+  return Vector2(this->x() / scalar, this->y() / scalar);
 }
 
 double Vector2::dotProduct(Vector2& V0, Vector2& V1) {
   return V0.x() * V1.x() + V0.y() * V1.y();
 }
-
-
-
 

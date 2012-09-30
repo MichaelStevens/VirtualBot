@@ -6,7 +6,6 @@
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
 #include <QKeyEvent>
-#include <QVector2D>
 #include "math.h"
 #include <iostream>
 
@@ -39,22 +38,22 @@ VirtualBot::VirtualBot()
   connect(updater, SIGNAL(timeout()), this, SLOT(updateFilter()));
   
   updater->start(100);
-  QVector2D vec;
+  Vector2 vec;
 }
 
 
 void VirtualBot::updateFilter()
 {
   double dist = sqrt(map->width * map->width + map->height * map->height) + 1;  
-  QVector2D dir(robot->x + cos(robot->dir) * dist, robot->y + cos(PI/2 - robot->dir) * dist);
+  Vector2 dir(robot->x + cos(robot->dir) * dist, robot->y + cos(PI/2 - robot->dir) * dist);
   
   
   
   
-  QVector2D origin(robot->x, robot->y);
+  Vector2 origin(robot->x, robot->y);
   
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);
@@ -65,11 +64,11 @@ void VirtualBot::updateFilter()
   }
   
   double dist2 = sqrt(map->width * map->width + map->height * map->height) + 1;
-  dir = QVector2D(robot->x + cos(robot->dir + PI/2.0) * dist2, robot->y + cos(robot->dir) * dist2);
+  dir = Vector2(robot->x + cos(robot->dir + PI/2.0) * dist2, robot->y + cos(robot->dir) * dist2);
   
     
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);
@@ -81,11 +80,11 @@ void VirtualBot::updateFilter()
   
   
   double dist3 = sqrt(map->width * map->width + map->height * map->height) + 1;
-  dir = QVector2D(robot->x + cos(robot->dir + PI) * dist3, robot->y + cos(robot->dir + PI / 2) * dist3);
+  dir = Vector2(robot->x + cos(robot->dir + PI) * dist3, robot->y + cos(robot->dir + PI / 2) * dist3);
   
     
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);
@@ -96,11 +95,11 @@ void VirtualBot::updateFilter()
   }
   
   double dist4 = sqrt(map->width * map->width + map->height * map->height) + 1;
-  dir =QVector2D(robot->x + cos(robot->dir + 3.0*PI/2.0) * dist4, robot->y + cos(robot->dir + PI) * dist4);
+  dir =Vector2(robot->x + cos(robot->dir + 3.0*PI/2.0) * dist4, robot->y + cos(robot->dir + PI) * dist4);
   
     
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);

@@ -29,20 +29,20 @@
 #ifndef PARTICLEFILTER_H
 #define PARTICLEFILTER_H
 #include "map.h"
-#include <QVector2D>
+
 struct Particle {
     double x, y, dir, weight, a;
-    QVector2D p, p1;
+    Vector2 p, p1;
 };
 
 class ParticleFilter {
-    private:
+private:
     Map* map;
     int circle ( int, int );
     double gaussian ( double, double, double );
     void normalize();
 
-    public:
+public:
     Particle* p;
     int pnum, resample_pnum;
     double width, height, moveNoise, senseNoise, turnNoise;

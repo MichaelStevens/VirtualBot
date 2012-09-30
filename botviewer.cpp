@@ -88,13 +88,13 @@ void BotViewer::paintEvent(QPaintEvent* )
   painter.setPen(pen);
   double dist = sqrt(width * width + height * height) + 1;
   //deg 0
-  QVector2D point;
-  QVector2D dir(robot->x + cos(robot->dir) * dist, robot->y + cos(PI/2 - robot->dir) * dist);  
-  QVector2D origin(robot->x, robot->y);  
+  Vector2 point;
+  Vector2 dir(robot->x + cos(robot->dir) * dist, robot->y + cos(PI/2 - robot->dir) * dist);  
+  Vector2 origin(robot->x, robot->y);  
   
    
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);
@@ -110,12 +110,12 @@ void BotViewer::paintEvent(QPaintEvent* )
   
   //deg 90
   dist = sqrt(width * width + height * height) + 1;
-  dir = QVector2D(robot->x + cos(robot->dir + PI/2) * dist, robot->y + cos(robot->dir) * dist);  
+  dir = Vector2(robot->x + cos(robot->dir + PI/2) * dist, robot->y + cos(robot->dir) * dist);  
     
   
    
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);
@@ -130,12 +130,12 @@ void BotViewer::paintEvent(QPaintEvent* )
   
   //deg 180
   dist = sqrt(width * width + height * height) + 1;
-  dir = QVector2D(robot->x + cos(robot->dir + PI) * dist, robot->y + cos(robot->dir + PI / 2) * dist);  
+  dir = Vector2(robot->x + cos(robot->dir + PI) * dist, robot->y + cos(robot->dir + PI / 2) * dist);  
     
   
    
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);
@@ -150,12 +150,12 @@ void BotViewer::paintEvent(QPaintEvent* )
   
   //deg 270
   dist = sqrt(width * width + height * height) + 1;
-  dir = QVector2D(robot->x + cos(robot->dir + 3.0*PI/2.0) * dist, robot->y + cos(robot->dir + PI) * dist);  
+  dir = Vector2(robot->x + cos(robot->dir + 3.0*PI/2.0) * dist, robot->y + cos(robot->dir + PI) * dist);  
     
   
    
   for(uint i=0; i<map->parts.size(); i++) {
-    QVector2D inter;
+    Vector2 inter;
     bool hit = intersects(origin, dir, map->parts[i].v0, map->parts[i].v1, inter);
     if(hit) {
       double new_dist = distance(origin, inter);

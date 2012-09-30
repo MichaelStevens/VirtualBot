@@ -30,9 +30,9 @@
 #define MAP_H
 
 #include <vector>
-#include <QVector2D>
+
 struct mapseg {
-  QVector2D v0, v1;
+  Vector2 v0, v1;
   mapseg(double x0, double y0, double x1, double y1);
 };
 
@@ -43,6 +43,7 @@ public:
   std::vector<mapseg> parts;
   double width, height;
   double tile_size;
+  int rows, cols;
   int** descritized_map;
   
   Map();

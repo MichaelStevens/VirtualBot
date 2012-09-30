@@ -3,7 +3,6 @@
 #include <math.h>
 #define PI 3.14159265358979323846
 #include <cstdlib>  // For srand() and rand()
-#include <QVector2D>
 
 class Vector2 {
 private:
@@ -15,14 +14,16 @@ public:
   double y();
   Vector2 operator+(Vector2& other);
   Vector2 operator-(Vector2& other);
+  Vector2 operator*(const double& scalar);
+  Vector2 operator/(const double& scalar);
   static double dotProduct(Vector2& V0, Vector2& V1);
   
 };
 
-bool intersects(QVector2D A, QVector2D B, QVector2D C, QVector2D D, QVector2D &intersection);
-bool intersectsRect(QVector2D A, QVector2D B, double x, double y, double width, double height);
+bool intersects(Vector2 A, Vector2 B, Vector2 C, Vector2 D, Vector2 &intersection);
+bool intersectsRect(Vector2 A, Vector2 B, double x, double y, double width, double height);
 bool contains(double x0, double y0, double x1, double y1, double test_x, double test_y);
-double distance(QVector2D v0, QVector2D v1);
+double distance(Vector2 v0, Vector2 v1);
 double distance(double x0, double y0, double x1, double y1);
 double randn_notrig(double mu=0.0, double sigma=1.0);
 double randn_trig(double mu=0.0, double sigma=1.0);

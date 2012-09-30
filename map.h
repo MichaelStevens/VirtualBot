@@ -30,9 +30,9 @@
 #define MAP_H
 
 #include <vector>
-#include <QVector2D>
+#include "math.h"
 struct mapseg {
-  QVector2D v0, v1;
+  Vector2 v0, v1;
   mapseg(double x0, double y0, double x1, double y1);
 };
 
